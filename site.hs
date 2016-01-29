@@ -1,5 +1,6 @@
 --------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
+import qualified Data.Map as M
 import           Data.Monoid (mappend)
 import           Hakyll
 import           System.FilePath ( (</>), (<.>)
@@ -29,6 +30,7 @@ main = hakyll $ do
         route $ setExtension "html" `composeRoutes`
                 dateFolders         `composeRoutes`
                 dropPostsPrefix     `composeRoutes`
+                prependCategory     `composeRoutes`
                 appendIndex
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/post.html"    postCtx
@@ -91,6 +93,12 @@ appendIndex = customRoute $
 --------------------------------------------------------------------------------
 dropPostsPrefix :: Routes
 dropPostsPrefix = gsubRoute "posts/" $ const ""
+
+
+--------------------------------------------------------------------------------
+prependCategory :: Routes
+prependCategory = metadataRoute $ \md -> customRoute $
+    (md M.! "category" </>) . toFilePath
 
 
 --------------------------------------------------------------------------------
