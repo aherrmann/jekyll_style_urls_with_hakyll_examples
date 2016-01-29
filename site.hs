@@ -26,7 +26,9 @@ main = hakyll $ do
             >>= relativizeUrls
 
     match "posts/*" $ do
-        route $ setExtension "html" `composeRoutes` appendIndex
+        route $ setExtension "html" `composeRoutes`
+                dateFolders         `composeRoutes`
+                appendIndex
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/post.html"    postCtx
             >>= loadAndApplyTemplate "templates/default.html" postCtx
@@ -71,6 +73,12 @@ postCtx =
     dateField "date" "%B %e, %Y" `mappend`
     dropIndexHtml "url"          `mappend`
     defaultContext
+
+
+--------------------------------------------------------------------------------
+dateFolders :: Routes
+dateFolders =
+    gsubRoute "/[0-9]{4}-[0-9]{2}-[0-9]{2}-" $ replaceAll "-" (const "/")
 
 
 --------------------------------------------------------------------------------
