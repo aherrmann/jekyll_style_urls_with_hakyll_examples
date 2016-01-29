@@ -19,9 +19,10 @@ main = hakyll $ do
         compile compressCssCompiler
 
     match (fromList ["about.rst", "contact.markdown"]) $ do
-        route   $ setExtension "html"
+        route   $ setExtension "html" `composeRoutes` appendIndex
+        let siteCtx = dropIndexHtml "url" `mappend` defaultContext
         compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/default.html" defaultContext
+            >>= loadAndApplyTemplate "templates/default.html" siteCtx
             >>= relativizeUrls
 
     match "posts/*" $ do
@@ -32,12 +33,13 @@ main = hakyll $ do
             >>= relativizeUrls
 
     create ["archive.html"] $ do
-        route idRoute
+        route appendIndex
         compile $ do
             posts <- recentFirst =<< loadAll "posts/*"
             let archiveCtx =
                     listField "posts" postCtx (return posts) `mappend`
                     constField "title" "Archives"            `mappend`
+                    dropIndexHtml "url"                      `mappend`
                     defaultContext
 
             makeItem ""
