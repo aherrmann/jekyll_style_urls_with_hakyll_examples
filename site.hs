@@ -2,6 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 import           Data.Monoid (mappend)
 import           Hakyll
+import           System.FilePath ((</>), (<.>), splitExtension)
 
 
 --------------------------------------------------------------------------------
@@ -22,7 +23,7 @@ main = hakyll $ do
             >>= relativizeUrls
 
     match "posts/*" $ do
-        route $ setExtension "html"
+        route $ setExtension "html" `composeRoutes` appendIndex
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/post.html"    postCtx
             >>= loadAndApplyTemplate "templates/default.html" postCtx
@@ -65,3 +66,9 @@ postCtx :: Context String
 postCtx =
     dateField "date" "%B %e, %Y" `mappend`
     defaultContext
+
+
+--------------------------------------------------------------------------------
+appendIndex :: Routes
+appendIndex = customRoute $
+    (\(p, e) -> p </> "index" <.> e) . splitExtension . toFilePath
