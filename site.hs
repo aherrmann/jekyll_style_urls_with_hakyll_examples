@@ -2,7 +2,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 import           Data.Monoid (mappend)
 import           Hakyll
-import           System.FilePath ((</>), (<.>), splitExtension)
+import           System.FilePath ( (</>), (<.>)
+                                 , splitExtension, splitFileName
+                                 , takeDirectory )
 
 
 --------------------------------------------------------------------------------
@@ -65,6 +67,7 @@ main = hakyll $ do
 postCtx :: Context String
 postCtx =
     dateField "date" "%B %e, %Y" `mappend`
+    dropIndexHtml "url"          `mappend`
     defaultContext
 
 
@@ -72,3 +75,11 @@ postCtx =
 appendIndex :: Routes
 appendIndex = customRoute $
     (\(p, e) -> p </> "index" <.> e) . splitExtension . toFilePath
+
+
+--------------------------------------------------------------------------------
+dropIndexHtml :: String -> Context a
+dropIndexHtml key = mapContext transform (urlField key) where
+    transform url = case splitFileName url of
+                        (p, "index.html") -> takeDirectory p
+                        _                 -> url
