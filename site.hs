@@ -28,9 +28,8 @@ main = hakyll $ do
 
     match "posts/*" $ do
         route $ setExtension "html" `composeRoutes`
-                dateFolders         `composeRoutes`
+                dateAndCategory     `composeRoutes`
                 dropPostsPrefix     `composeRoutes`
-                prependCategory     `composeRoutes`
                 appendIndex
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/post.html"    postCtx
@@ -79,12 +78,6 @@ postCtx =
 
 
 --------------------------------------------------------------------------------
-dateFolders :: Routes
-dateFolders =
-    gsubRoute "/[0-9]{4}-[0-9]{2}-[0-9]{2}-" $ replaceAll "-" (const "/")
-
-
---------------------------------------------------------------------------------
 appendIndex :: Routes
 appendIndex = customRoute $
     (\(p, e) -> p </> "index" <.> e) . splitExtension . toFilePath
@@ -96,9 +89,10 @@ dropPostsPrefix = gsubRoute "posts/" $ const ""
 
 
 --------------------------------------------------------------------------------
-prependCategory :: Routes
-prependCategory = metadataRoute $ \md -> customRoute $
-    (md M.! "category" </>) . toFilePath
+dateAndCategory :: Routes
+dateAndCategory = metadataRoute $ \md ->
+    gsubRoute "/[0-9]{4}-[0-9]{2}-[0-9]{2}-" $ \s ->
+        (replaceAll "-" (const "/") s) ++ (md M.! "category") ++ "/"
 
 
 --------------------------------------------------------------------------------
