@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
-import qualified Data.Map as M
+import           Data.Maybe (fromMaybe)
 import           Data.Monoid (mappend)
 import           Hakyll
 import           System.FilePath ( (</>), (<.>)
@@ -85,8 +85,10 @@ appendIndex = customRoute $
 --------------------------------------------------------------------------------
 dateAndCategory :: Routes
 dateAndCategory = metadataRoute $ \md ->
-    gsubRoute "/[0-9]{4}-[0-9]{2}-[0-9]{2}-" $ \s ->
-        (replaceAll "-" (const "/") s) ++ (md M.! "category") ++ "/"
+    let mbCategory = lookupString "category" md
+        category = fromMaybe (error "Posts: Post without category") mbCategory
+    in  gsubRoute "/[0-9]{4}-[0-9]{2}-[0-9]{2}-" $ \s ->
+            (replaceAll "-" (const "/") s) ++ category ++ "/"
 
 
 --------------------------------------------------------------------------------
