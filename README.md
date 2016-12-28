@@ -6,12 +6,12 @@ post](http://aherrmann.github.io/programming/2016/01/31/jekyll-style-urls-with-h
 Step through the commits in this repository to follow along with the Blog post.
 The repository is starting out with the output of `hakyll-init`.
 
-Compile and run with cabal by executing the following commands.
+Compile and run with stack by executing the following commands.
 
 ``` shell
-cabal configure
-cabal build
-cabal run watch
+stack setup
+stack build
+stack exec site watch
 ```
 
 Requires [Hakyll](https://jaspervdj.be/hakyll/).
