@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
-import qualified Data.Map as M
+import           Data.Maybe (fromMaybe)
 import           Data.Monoid (mappend)
 import           Hakyll
 import           System.FilePath ( (</>), (<.>)
@@ -98,7 +98,9 @@ dropPostsPrefix = gsubRoute "posts/" $ const ""
 --------------------------------------------------------------------------------
 prependCategory :: Routes
 prependCategory = metadataRoute $ \md -> customRoute $
-    (md M.! "category" </>) . toFilePath
+    let mbCategory = lookupString "category" md
+        category = fromMaybe (error "Posts: Post without category") mbCategory
+    in  (category </>) . toFilePath
 
 
 --------------------------------------------------------------------------------
